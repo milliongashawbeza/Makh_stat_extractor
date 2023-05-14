@@ -11,9 +11,9 @@
 - **Done!** A new extension called makh exporter should have appeared in the list.
 
 ## What it do 
-> Get all the stat links 
-> Automatically loop through each stats and 
-> Fetch OR extract table data 
-> Export the data into json and to Spreed sheet 
-> Will let it be downloadable 
+* Get all the stat links 
+* Automatically loop through each stats and 
+* Fetch OR extract table data 
+* Export the data into json and to Spreed sheet 
+* Will let it be downloadable 
 
