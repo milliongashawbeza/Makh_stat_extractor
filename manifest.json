@@ -25,9 +25,12 @@
         "declarativeContent",
         "scripting",
         "storage"
+      
+     
     ],
     "host_permissions": [
-        "*://*/*"
+        "*://*.app.makh.org/"
+      
     ],
     "background": {
         "service_worker": "service-worker.js"

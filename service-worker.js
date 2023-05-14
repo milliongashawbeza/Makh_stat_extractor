@@ -20,28 +20,7 @@ chrome.runtime.onInstalled.addListener(function () {
 	});
 });
 
-// chrome.runtime.onMessage.addListener(
-//     function(request, sender, sendResponse) { 
-// 		chrome.tabs.query({}, function (tabs) {
-// 			tabs.forEach((tab) => {
-// 			  chrome.tabs.sendMessage( 
-// 				tab.id,
-// 				urls_list, 
-// 				function (response) {
-// 				 // do something here if you want 
-// 				 console.log(response);
-// 				}
-// 			  );
-// 			});
-// 		  });
-//      	 console.log(sender.tab ?
-//                   "from a content script:" + sender.tab.url :
-//                   "from the extension");
-//       if (request.greeting=="hello") 
-// 	 	 x()
-//         sendResponse({farewell: "goodbye3"});
-//     }
-//   );  
+
 function makeid(length) {
 	let result = '';
 	const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -80,52 +59,23 @@ chrome.runtime.onMessage.addListener(
 		}
 		if (request.greeting == "hello") {
 			page_no = 0;
-
+			file_name = 'export_' + makeid(7);
 			await chrome.storage.session.set({ name: "David", color: "green" });
 			const { name, color } = await chrome.storage.session.get(["name", "color"]);
 			console.log({ name, color });
 			urls_list = request.data;
-			loop_urls()
+			urls_list.push(urls_list[0])
+			console.log(urls_list);
 			sendResponse({ farewell: "goodbye/3" });
+			loop_urls()
+
 
 		}
 
 	}
 );
 
-function z() {
-	chrome.tabs.create({ url: 'https://app.makh.org/1683762405/statistics/detail-graph/2#Weekly' }, function (tab) {
-	});
-	//(await chrome.tabs.query({})).filter(t => 
-	//	['https://www.amazon.com/', 'https://www.example.com/']
-	//	.some(m => t.url.startsWith(m))
-	//  ).forEach(t => chrome.tabs.remove(t.id)) 
-}
-function s(page_no) {
 
-	chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
-		await goToPage(urls_list[page_no], page_no, tabs[0].id);
-	});
-}
-function y() {
-	// query the current tab to find its id
-	chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
-		file_name = 'export_' + makeid(7);
-		for (let i = page_no; i < urls_list.length; i++) {
-			// navigate to next url
-			await goToPage(urls_list[i], i + 1, tabs[0].id);
-			console.log(urls_list[i])
-			// wait for 5 seconds
-			await waitSeconds(10);
-			if (i == urls_list.length - 1) {
-				console.log('navigation completd')
-			}
-		}
-
-		// navigation of all pages is finished
-
-	});
-};
 function loop_urls() {
 	// query the current tab to find its id
 	chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
@@ -135,7 +85,22 @@ function loop_urls() {
 
 			// wait for 5 seconds
 			await waitSeconds(5);
+			if(i==0){
+				await goToPage(urls_list[i], i + 1, tabs[0].id);
+			}
+			if (i == urls_list.length - 1) {
+				var filename = file_name+'.xlsx'
+				var urlx = "http://localhost:5001/download/" + file_name;
+				chrome.downloads.download({ filename: filename, url: urlx });
+				//	fetch("http://localhost:5001/download/"+file_name, {
+				//				method: "get",
+				//				headers: {
+				//					"Content-type": "application/json; charset=UTF-8"
+				//				}
+				//			});
+			}
 		}
+
 
 		// navigation of all pages is finished
 		//alert('Navigation Completed');
@@ -143,55 +108,95 @@ function loop_urls() {
 };
 // start na vigation when #startNavigation button is clicked
 
-
 async function goToPage(url, url_index, tab_id) {
 	return new Promise(function (resolve, reject) {
 		// update current tab with new url
 		chrome.tabs.update({ url: url });
-		console.log("TAB ID 1" + tab_id);
+
 		// fired when tab is updated
 		chrome.tabs.onUpdated.addListener(function openPage(tabID, changeInfo) {
 			// tab has finished loading, validate whether it is the same tab
 			if (tab_id == tabID && changeInfo.status === 'complete') {
-				console.log("Tab ID 2 " + tabID);
 				// remove tab onUpdate event as it may get duplicated
 				chrome.tabs.onUpdated.removeListener(openPage);
-
 				// fired when content script sends a message
-
-				chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
-					if (request.action == "addData") {
-						console.log(request.data)
-						try {
-							fetch("http://localhost:5001/export/" + file_name, {
-								method: "POST",
-								body: request.data,
-								headers: {
-									"Content-type": "application/json; charset=UTF-8"
-								}
-							});
-						} catch (e) {
-							console.log("Error" + e)
-						}
-
-						console.log("page * " + page_no)
-
-						sendResponse({ farewell: "goodbye /3" });
-						chrome.scripting.executeScript({
-							target: { tabId: tab_id, allFrames: true },
-							files: ["script.js"],
-						}).then(() => { resolve() });
+				chrome.runtime.onMessage.addListener(function getDOMInfo(message) {
+					// remove onMessage event as it may get duplicated
+					chrome.runtime.onMessage.removeListener(getDOMInfo);
+					console.log(message)
+					// save data from message to a JSON file and download
+					try {
+						fetch("http://localhost:5001/export/" + file_name, {
+							method: "POST",
+							body: message,
+							headers: {
+								"Content-type": "application/json; charset=UTF-8"
+							}
+						});
+					} catch (e) {
+						console.log("Error" + e)
 					}
-				}
-				);
+				});
+				// execute content script
 				chrome.scripting.executeScript({
 					target: { tabId: tab_id, allFrames: true },
 					files: ["script.js"],
-				}).then(() => { resolve() });
+				}).then(() => {
+					resolve();
+				});
 			}
 		});
 	});
 }
+// async function goToPage(url, url_index, tab_id) {
+// 	return new Promise(function (resolve, reject) {
+// 		// update current tab with new url
+// 		chrome.tabs.update({ url: url });
+// 		console.log("TAB ID 1" + tab_id);
+// 		// fired when tab is updated
+// 		chrome.tabs.onUpdated.addListener(function openPage(tabID, changeInfo) {
+// 			// tab has finished loading, validate whether it is the same tab
+// 			if (tab_id == tabID && changeInfo.status === 'complete') {
+// 				console.log("Tab ID 2 " + tabID);
+// 				// remove tab onUpdate event as it may get duplicated
+// 				chrome.tabs.onUpdated.removeListener(openPage);
+
+// 				// fired when content script sends a message
+
+// 				chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
+// 					console.log("Message received.. ")
+// 					if (request.action == "addData") {
+// 						console.log(request.data)
+// 						try {
+// 							fetch("http://localhost:5001/export/" + file_name, {
+// 								method: "POST",
+// 								body: request.data,
+// 								headers: {
+// 									"Content-type": "application/json; charset=UTF-8"
+// 								}
+// 							});
+// 						} catch (e) {
+// 							console.log("Error" + e)
+// 						}
+
+// 						console.log("page * " + page_no)
+
+// 						sendResponse({ farewell: "goodbye /3" });
+// 						chrome.scripting.executeScript({
+// 							target: { tabId: tab_id, allFrames: true },
+// 							files: ["script.js"],
+// 						}).then(() => { resolve() });
+// 					}
+// 				}
+// 				);
+// 				chrome.scripting.executeScript({
+// 					target: { tabId: tab_id, allFrames: true },
+// 					files: ["script.js"],
+// 				}).then(() => { resolve() });
+// 			}
+// 		});
+// 	});
+// }
 
 // async function to wait for x seconds 
 async function waitSeconds(seconds) {

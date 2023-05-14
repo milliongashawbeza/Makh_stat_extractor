@@ -68,8 +68,8 @@ function myMain(evt) {
 						//var d = JSON
 						//sendMessage(data2)
 						var s = JSON.stringify(data2)
-						await chrome.runtime.sendMessage({ action: "addData", data: s, url: url });
-
+						//await chrome.runtime.sendMessage({ action: "addData", data: s, url: url });
+						await chrome.runtime.sendMessage(null, s);
 
 
 					}

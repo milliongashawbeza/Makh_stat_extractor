@@ -7,7 +7,14 @@ const request = require('request');
 var proxy = require('express-http-proxy');
 const fs = require('fs');
 const xl = require('excel4node');
+const cors=require("cors");
+const corsOptions ={
+   origin:'*', 
+   credentials:true,            //access-control-allow-credentials:true
+   optionSuccessStatus:200,
+}
 
+app.use(cors(corsOptions)) 
 //Pupeteer  
 
 function selectProxyHost() {
@@ -80,8 +87,9 @@ app.get('/', (req, res) => {
   res.send("Connected successfully.")
 })
 app.get('/download/:file_name', (req, res) => {
-  var file_name = req.params.file_name;
-  var f = file_name + '.xlsx'
+  var file_name = req.params.file_name; 
+  var f = file_name + '.xlsx' 
+  console.log("Downloading "+file_name);
   fs.stat(f, function (err, stat) {
     if (err == null) {
       res.download(f)
@@ -101,37 +109,36 @@ app.post('/export/:file_name', (req, res) => {
   var f = file_name + '.json'
   fs.stat(f, function (err, stat) {
     if (err == null) {
-      file_update(f);
+      file_update(file_name);
     } else if (err.code === 'ENOENT') {
       // file does not exist
-      newFile(f);
+      newFile(file_name);
     } else {
       console.log('Some other error: ', err.code);
     }
   });
   function file_update(file_name) {
-    var fs = file_name;
-    file_name = file_name+ '.json';
+    var f = file_name;
+    file_name = file_name+'.json';
+    console.log("File Update "+file_name);
     var s = JSON.stringify(req.body) 
     var newParse = JSON.parse(s);
     console.log(s);
     var scrape_result = fs.readFileSync(file_name);
     var myObject = JSON.parse(scrape_result);
-    for(let y=0;y<newParse.length;y++){
-      myObject[0].push(newParse[y])
-    }
+    
    // myObject.push(JSON.parse(s))
-    var newData = JSON.stringify(myObject[0]);
-    fs.writeFileSync(f, newData) 
+    var newData = JSON.stringify(myObject.concat(newParse));
+    fs.writeFileSync(file_name, newData) 
     console.log("Aircraft url saved * Update ");
-    exportFilterToExcel(myObject[0],fs);
+    exportFilterToExcel(newData,f);
     const file = `${__dirname}/filtered_urls.xlsx`;
     console.log(file)
-    res.download(file)
+    res.send("file updated , sucessfully!!")
   }
   function newFile(file_name) { 
-    var fs = file_name;
-    file_name = file_name+ '.json';
+    var f = file_name;
+    file_name = file_name+'.json';
     var s = JSON.stringify(req.body)
     console.log(s);
     var a = [];  // your JSON
@@ -143,10 +150,10 @@ app.post('/export/:file_name', (req, res) => {
     myObject.push(JSON.parse(s))
     var newData = JSON.stringify(myObject[0]);
     fs.writeFileSync(file_name, newData) 
-    exportFilterToExcel(myObject[0], fs);
+    exportFilterToExcel(myObject[0], f);
     const file = `${__dirname}/filtered_urls.xlsx`;
     console.log(file)
-    res.download(file)
+    res.send("new file created , done!")
   }
   //  console.log("")
 
