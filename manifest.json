@@ -1,0 +1,46 @@
+{
+    "manifest_version": 3,
+    "name": "makh exporter",
+    "description": "A minimal tool to export your makh data to spreedsheet.",
+    "version": "0.0.1",
+    "icons": {
+        "16": "logo/logo-16.png",
+        "48": "logo/logo-48.png",
+        "128": "logo/logo-128.png"
+    },
+    "options_page": "settings/settings.html",
+    "action": {
+        "default_title": "Chrome Addon v3 Starter",
+        "default_popup": "popup/popup.html"
+    },
+    "storage": {
+        "managed_schema": "schema.json"
+    },
+    "permissions": [
+        "downloads",
+        "tabs",
+        "activeTab",
+        "tabGroups",
+        "alarms",
+        "declarativeContent",
+        "scripting",
+        "storage"
+    ],
+    "host_permissions": [
+        "*://*/*"
+    ],
+    "background": {
+        "service_worker": "service-worker.js"
+    },
+    "content_scripts": [
+        {
+            "js": [
+                "script.js"
+            ],
+            "matches": [
+                "https://app.makh.org/*"
+            ],
+            "run_at": "document_end"
+        }
+    ]
+}
