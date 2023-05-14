@@ -11,6 +11,7 @@
 - **Done!** A new extension called makh exporter should have appeared in the list.
 
 ## What it do 
+* Embede an export button to stats page
 * Get all the stat links 
 * Automatically loop through each stats and 
 * Fetch OR extract table data 
