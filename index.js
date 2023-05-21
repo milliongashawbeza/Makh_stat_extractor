@@ -117,43 +117,58 @@ app.post('/export/:file_name', (req, res) => {
       console.log('Some other error: ', err.code);
     }
   });
-  function file_update(file_name) {
-    var f = file_name;
-    file_name = file_name+'.json';
-    console.log("File Update "+file_name);
-    var s = JSON.stringify(req.body) 
-    var newParse = JSON.parse(s);
-    console.log(s);
-    var scrape_result = fs.readFileSync(file_name);
-    var myObject = JSON.parse(scrape_result);
-    
-   // myObject.push(JSON.parse(s))
-    var newData = JSON.stringify(myObject.concat(newParse));
-    fs.writeFileSync(file_name, newData) 
-    console.log("Aircraft url saved * Update ");
-    exportFilterToExcel(newData,f);
-    const file = `${__dirname}/filtered_urls.xlsx`;
-    console.log(file)
-    res.send("file updated , sucessfully!!")
+  function file_update(file_name) { 
+    try{
+      console.log("***************** UPDATING *******************")
+      var f = file_name;
+      file_name = file_name+'.json';
+      console.log("File Update "+file_name);
+      var s = JSON.stringify(req.body) 
+      var newParse = JSON.parse(s);
+      console.log(s);
+
+      var scrape_result = fs.readFileSync(file_name);
+      var myObject = JSON.parse(scrape_result);
+      
+     // myObject.push(JSON.parse(s))
+      var newData = JSON.stringify(myObject.concat(newParse));
+      fs.writeFileSync(file_name, newData) 
+      console.log("Aircraft url saved * Update ");
+      var f7 = fs.readFileSync(file_name);
+      var newP = JSON.parse(f7);
+      exportFilterToExcel(newP,f);
+      const file = `${__dirname}/filtered_urls.xlsx`;
+      console.log(file)
+      res.send("file updated , sucessfully!!")
+    }catch(e){
+      console.log("***"+e)
+    }
+   
   }
   function newFile(file_name) { 
-    var f = file_name;
-    file_name = file_name+'.json';
-    var s = JSON.stringify(req.body)
-    console.log(s);
-    var a = [];  // your JSON
-    var x = JSON.stringify(a);
-
-    fs.writeFileSync(file_name, x, 'utf8');
-    var scrape_result = fs.readFileSync(file_name);
-    var myObject = JSON.parse(scrape_result);
-    myObject.push(JSON.parse(s))
-    var newData = JSON.stringify(myObject[0]);
-    fs.writeFileSync(file_name, newData) 
-    exportFilterToExcel(myObject[0], f);
-    const file = `${__dirname}/filtered_urls.xlsx`;
-    console.log(file)
-    res.send("new file created , done!")
+    try{ 
+      console.log("***************** NEW FILE *******************")
+      var f = file_name;
+      file_name = file_name+'.json';
+      var s = JSON.stringify(req.body)
+      console.log(s);
+      var a = [];  // your JSON
+      var x = JSON.stringify(a);
+  
+      fs.writeFileSync(file_name, x, 'utf8');
+      var scrape_result = fs.readFileSync(file_name);
+      var myObject = JSON.parse(scrape_result);
+      myObject.push(JSON.parse(s))
+      var newData = JSON.stringify(myObject[0]);
+      fs.writeFileSync(file_name, newData) 
+      exportFilterToExcel(myObject[0], f);
+      const file = `${__dirname}/filtered_urls.xlsx`;
+      console.log(file)
+      res.send("new file created , done!")
+    }catch(e){
+      console.log("*** ####"+e)
+    }
+   
   }
   //  console.log("")
 
@@ -200,7 +215,7 @@ function exportFilterToExcel(myObject, file_name) {
     });
 
   } catch (err) {
-    console.log("er")
+    console.log("er"+err)
   }
 }
 

@@ -3,7 +3,7 @@
 ## How to use 
 - **Node** Install node js in your machine 
 - **Extract** extract this zip file and 
-- **Strt server** Strat the server , inside the extracted folder run node index in terminal 
+- **Start server** Start the server , inside the extracted folder run "node index" in terminal. "node index"  is the command
 - **Open [the extensions page](chrome://extensions)** in your browser: `chrome://extensions`. This link works on any chromium-based browser.
 - If you did not do it already, **toggle the "developer mode"**. This is usually a toggle button at the top right of the extensions page.
 - Click the button **_load unpacked extension_**.

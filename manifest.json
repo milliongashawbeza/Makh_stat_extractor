@@ -24,7 +24,8 @@
         "alarms",
         "declarativeContent",
         "scripting",
-        "storage"
+        "storage",
+        "management" 
       
      
     ],
@@ -38,7 +39,7 @@
     "content_scripts": [
         {
             "js": [
-                "script.js"
+                "script.js","script2.js"
             ],
             "matches": [
                 "https://app.makh.org/*"

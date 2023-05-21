@@ -64,12 +64,10 @@ chrome.runtime.onMessage.addListener(
 			const { name, color } = await chrome.storage.session.get(["name", "color"]);
 			console.log({ name, color });
 			urls_list = request.data;
-			urls_list.push(urls_list[0])
+			//urls_list.push(urls_list[0])
 			console.log(urls_list);
 			sendResponse({ farewell: "goodbye/3" });
 			loop_urls()
-
-
 		}
 
 	}
@@ -84,7 +82,7 @@ function loop_urls() {
 			await goToPage(urls_list[i], i + 1, tabs[0].id);
 
 			// wait for 5 seconds
-			await waitSeconds(5);
+			await waitSeconds(15);
 			if(i==0){
 				await goToPage(urls_list[i], i + 1, tabs[0].id);
 			}
@@ -132,7 +130,7 @@ async function goToPage(url, url_index, tab_id) {
 							headers: {
 								"Content-type": "application/json; charset=UTF-8"
 							}
-						});
+						})
 					} catch (e) {
 						console.log("Error" + e)
 					}
@@ -140,7 +138,7 @@ async function goToPage(url, url_index, tab_id) {
 				// execute content script
 				chrome.scripting.executeScript({
 					target: { tabId: tab_id, allFrames: true },
-					files: ["script.js"],
+					files: ["script2.js"],
 				}).then(() => {
 					resolve();
 				});
@@ -206,4 +204,3 @@ async function waitSeconds(seconds) {
 		}, seconds * 1000);
 	});
 }
-
